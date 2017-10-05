@@ -17,7 +17,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("callback", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		events, err := bot.ParseRequest(r)
 		if err != nil {
 			if err == linebot.ErrInvalidSignature {
