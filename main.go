@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,23 +11,30 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
+//SearchCityIDResponse is rad as fuck
 type SearchCityIDResponse struct {
 	LocationSuggestions []struct {
 		ID   int    `json:"id"`
 		Name string `json:"name"`
-		// CountryID            int    `json:"country_id"`
-		// CountryName          string `json:"country_name"`
-		// ShouldExperimentWith int    `json:"should_experiment_with"`
-		// DiscoveryEnabled     int    `json:"discovery_enabled"`
-		// HasNewAdFormat       int    `json:"has_new_ad_format"`
-		// IsState              int    `json:"is_state"`
-		// StateID              int    `json:"state_id"`
-		// StateName            string `json:"state_name"`
-		// StateCode            string `json:"state_code"`
 	} `json:"location_suggestions"`
-	// Status   string `json:"status"`
-	// HasMore  int    `json:"has_more"`
-	// HasTotal int    `json:"has_total"`
+}
+
+//SearchByLatLongResponse is rad as fuck
+type SearchByLatLongResponse struct {
+	Restaurants []struct {
+		Restaurant struct {
+			R struct {
+				ResID int `json:"res_id"`
+			} `json:"R"`
+			ID       string `json:"id"`
+			Name     string `json:"name"`
+			Location struct {
+				City string `json:"city"`
+			} `json:"location"`
+			UserRating struct {
+			} `json:"user_rating"`
+		} `json:"restaurant"`
+	} `json:"restaurants"`
 }
 
 func main() {
@@ -71,7 +79,7 @@ func main() {
 					defer resp.Body.Close()
 
 					var SearchCityIDs SearchCityIDResponse
-					if err := json.NewDecoder(resp.Body).Decode(&SearchCityIDs); err != nil {
+					if err = json.NewDecoder(resp.Body).Decode(&SearchCityIDs); err != nil {
 						log.Println(err)
 					}
 
@@ -84,26 +92,35 @@ func main() {
 							log.Print(err)
 						}
 					}
-					// for _, SearchCityID := range SearchCityIDs.LocationSuggestions {
-					// 	if SearchCityID.ID != nil {
-					// 		if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("jobel")).Do(); err != nil {
-					// 			log.Print(err)
-					// 		}
-					// 	} else {
-					// 		if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("not found")).Do(); err != nil {
-					// 			log.Print(err)
-					// 		}
-					// 	}
-					// }
-					// if message.Text == "a" {
-					// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("jobel")).Do(); err != nil {
-					// 		log.Print(err)
-					// 	}
-					// } else {
-					// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
-					// 		log.Print(err)
-					// 	}
-					// }
+				case *linebot.LocationMessage:
+					lat := message.Latitude
+					lon := message.Longitude
+					apiURL := "https://developers.zomato.com/api/v2.1/search?lat=" + fmt.Sprint(lat) + "&lon=" + fmt.Sprint(lon)
+					req, err := http.NewRequest("GET", apiURL, nil)
+					if err != nil {
+						log.Fatal(err)
+					}
+					req.Header.Set("Accept", "application/json")
+					req.Header.Set("User-Key", "d5a2d5a5ba29db0566b65335e27b5801")
+
+					resp, err := http.DefaultClient.Do(req)
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					var SearchByLatLongs SearchByLatLongResponse
+					if err = json.NewDecoder(resp.Body).Decode(&SearchByLatLongs); err != nil {
+						log.Println(err)
+					}
+
+					var lineMessage string
+					for _, SearchByLatLong := range SearchByLatLongs.Restaurants {
+						lineMessage = lineMessage + SearchByLatLong.Restaurant.Name + "\n"
+					}
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(lineMessage)).Do(); err != nil {
+						log.Print(err)
+					}
 				}
 			}
 		}
