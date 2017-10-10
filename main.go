@@ -29,15 +29,21 @@ func main() {
 		}
 		for _, event := range events {
 			if event.Type == linebot.EventTypeMessage {
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("joshua gateng")).Do(); err != nil {
-					log.Print(err)
-				}
-				// switch message := event.Message.(type) {
-				// case *linebot.TextMessage:
-				// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
-				// 		log.Print(err)
-				// 	}
+				// if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("joshua gateng")).Do(); err != nil {
+				// 	log.Print(err)
 				// }
+				switch message := event.Message.(type) {
+				case *linebot.TextMessage:
+					if message.Text == "a" {
+						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("jobel")).Do(); err != nil {
+							log.Print(err)
+						}
+					} else {
+						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
+							log.Print(err)
+						}
+					}
+				}
 			}
 		}
 	})
