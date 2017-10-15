@@ -55,8 +55,8 @@ func (s *Service) SearchCityByName(city string) ([]*City, error) {
 	return SearchCityIDs.LocationSuggestions, nil
 }
 
-func (s *Service) SearchRestaurantsByLatLong(latitude, longitude float64) ([]*Restaurant, error) {
-	url := fmt.Sprintf("%s/search?lat=%g&lon=%g", apiURL, latitude, longitude)
+func (s *Service) SearchRestaurantsByLatLong(latitude, longitude float64, offset, limit int) ([]*Restaurant, error) {
+	url := fmt.Sprintf("%s/search?lat=%g&lon=%g&start=%d&count=%d", apiURL, latitude, longitude, offset, limit)
 	response, err := s.get(url)
 	if err != nil {
 		return nil, err

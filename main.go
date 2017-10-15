@@ -83,7 +83,7 @@ func main() {
 				case *linebot.LocationMessage:
 					lat := message.Latitude
 					lon := message.Longitude
-					restaurants, err := zomatoService.SearchRestaurantsByLatLong(lat, lon)
+					restaurants, err := zomatoService.SearchRestaurantsByLatLong(lat, lon, 1, 5)
 
 					var lineMessage string
 					var CarouselColumnFiller [5]CarouselColumn
