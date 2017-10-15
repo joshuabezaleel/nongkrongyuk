@@ -37,6 +37,10 @@ func (s *Service) get(url string) ([]byte, error) {
 		return nil, err
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Received non-200 status code: %s", resp.Status)
+	}
+
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)
 }
