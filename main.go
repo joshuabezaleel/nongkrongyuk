@@ -87,13 +87,13 @@ func main() {
 
 					// var lineMessage string
 					var CarouselColumnFiller []*linebot.CarouselColumn
-					var OneCarouselColumn *linebot.CarouselColumn
 					// var URITemplate linebot.URITemplateAction
 					// linebot.NewURITemplateAction(label, uri)
 					for i, restaurant := range restaurants {
 						if i > 5 {
 							break
 						}
+						OneCarouselColumn := new(linebot.CarouselColumn)
 						OneCarouselColumn.ThumbnailImageURL = "https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png"
 						OneCarouselColumn.Title = restaurant.Name
 						OneCarouselColumn.Text = restaurant.Cuisines
