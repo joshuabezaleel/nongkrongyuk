@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -61,6 +62,7 @@ func (s *Service) SearchRestaurantsByLatLong(latitude, longitude float64, offset
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("SearchRestaurantsByLatLong response: %s", string(response))
 
 	var SearchByLatLongs SearchByLatLongResponse
 	if err = json.Unmarshal(response, &SearchByLatLongs); err != nil {
