@@ -84,6 +84,9 @@ func main() {
 					lat := message.Latitude
 					lon := message.Longitude
 					restaurants, err := zomatoService.SearchRestaurantsByLatLong(lat, lon, 1, 5)
+					if err != nil {
+						log.Print(err)
+					}
 
 					// var lineMessage string
 					var CarouselColumnFiller []*linebot.CarouselColumn
