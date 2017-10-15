@@ -16,6 +16,8 @@ type Restaurant struct {
 	ID       string   `json:"id"`
 	Name     string   `json:"name"`
 	Location Location `json:"location"`
+	URL      string   `json:"url"`
+	Cuisines string   `json:"cuisines"`
 }
 
 //City is rad as fuck

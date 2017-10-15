@@ -9,6 +9,15 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
+//CarouselColumn is rad as fuck
+type CarouselColumn struct {
+	imageURL string
+	title    string
+	text     string
+	labelURI string
+	linkURI  string
+}
+
 func main() {
 	bot, err := linebot.New(
 		os.Getenv("CHANNEL_SECRET"),
@@ -32,26 +41,44 @@ func main() {
 		}
 		for _, event := range events {
 			if event.Type == linebot.EventTypeMessage {
-				// if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("joshua gateng")).Do(); err != nil {
-				// 	log.Print(err)
-				// }
 				switch message := event.Message.(type) {
 				case *linebot.TextMessage:
-					cityQuery := message.Text
-					cities, err := zomatoService.SearchCityByName(cityQuery)
-					if err != nil {
-						log.Printf("Error while SearchCityByName: %s", err.Error())
-						break
-					}
-
-					if len(cities) == 0 {
-						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("not found")).Do(); err != nil {
-							log.Print(err)
-						}
-					} else {
-						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(cities[0].ID)).Do(); err != nil {
-							log.Print(err)
-						}
+					// cityQuery := message.Text
+					// apiURL := "https://developers.zomato.com/api/v2.1/cities?q=" + cityQuery
+					// req, err := http.NewRequest("GET", apiURL, nil)
+					// if err != nil {
+					// 	log.Fatal(err)
+					// }
+					// req.Header.Set("Accept", "application/json")
+					// req.Header.Set("User-Key", "d5a2d5a5ba29db0566b65335e27b5801")
+					//
+					// resp, err := http.DefaultClient.Do(req)
+					// if err != nil {
+					// 	log.Fatal(err)
+					// }
+					// defer resp.Body.Close()
+					//
+					// var SearchCityIDs SearchCityIDResponse
+					// if err = json.NewDecoder(resp.Body).Decode(&SearchCityIDs); err != nil {
+					// 	log.Println(err)
+					// }
+					//
+					// if len(SearchCityIDs.LocationSuggestions) == 0 {
+					// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("not found")).Do(); err != nil {
+					// 		log.Print(err)
+					// 	}
+					// } else {
+					// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(strconv.Itoa(SearchCityIDs.LocationSuggestions[0].ID))).Do(); err != nil {
+					// 		log.Print(err)
+					// 	}
+					// }
+					imageURL := "https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png"
+					template := linebot.NewCarouselTemplate(
+						linebot.NewCarouselColumn(imageURL, "title carousel", "text carousel",
+							linebot.NewMessageTemplateAction("label MTA", "text MTA")),
+					)
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("carousel alt text", template)).Do(); err != nil {
+						log.Print(err)
 					}
 				case *linebot.LocationMessage:
 					lat := message.Latitude
@@ -59,8 +86,16 @@ func main() {
 					restaurants, err := zomatoService.SearchRestaurantsByLatLong(lat, lon)
 
 					var lineMessage string
-					for _, restaurant := range restaurants {
-						lineMessage = lineMessage + restaurant.Name + "\n"
+					var CarouselColumnFiller [5]CarouselColumn
+					for i, restaurant := range restaurants {
+						if i > 5 {
+							break
+						}
+						CarouselColumnFiller[i].imageURL = "https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png"
+						CarouselColumnFiller[i].title = restaurant.Name
+						CarouselColumnFiller[i].text = restaurant.Cuisines
+						CarouselColumnFiller[i].labelURI = "Link"
+						CarouselColumnFiller[i].linkURI = "" + restaurant.URL
 					}
 					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(lineMessage)).Do(); err != nil {
 						log.Print(err)
