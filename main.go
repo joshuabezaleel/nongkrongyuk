@@ -129,19 +129,27 @@ func main() {
 						log.Println(err)
 					}
 
-					var lineMessage string
-					var CarouselColumnFiller [5]CarouselColumn
+					// var lineMessage string
+					var CarouselColumnFiller []*linebot.CarouselColumn
+					var OneCarouselColumn *linebot.CarouselColumn
+					// var URITemplate linebot.URITemplateAction
+					// linebot.NewURITemplateAction(label, uri)
 					for i, SearchByLatLong := range SearchByLatLongs.Restaurants {
 						if i > 5 {
 							break
 						}
-						CarouselColumnFiller[i].imageURL = "https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png"
-						CarouselColumnFiller[i].title = SearchByLatLong.Restaurant.Name
-						CarouselColumnFiller[i].text = SearchByLatLong.Restaurant.Cuisines
-						CarouselColumnFiller[i].labelURI = "Link"
-						CarouselColumnFiller[i].linkURI = "" + SearchByLatLong.Restaurant.URL
+						OneCarouselColumn.ThumbnailImageURL = "https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png"
+						OneCarouselColumn.Title = SearchByLatLong.Restaurant.Name
+						OneCarouselColumn.Text = SearchByLatLong.Restaurant.Cuisines
+						// URITemplate.Label = "Go to Zomato!"
+						// URITemplate.URI = "" + SearchByLatLong.Restaurant.URL
+						// OneCarouselColumn.Actions = URITemplate
+						CarouselColumnFiller = append(CarouselColumnFiller, OneCarouselColumn)
 					}
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(lineMessage)).Do(); err != nil {
+					// var zaky [5]linebot.CarouselTemplate
+
+					template := linebot.NewCarouselTemplate(CarouselColumnFiller...)
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("carousel alt text", template)).Do(); err != nil {
 						log.Print(err)
 					}
 				}
