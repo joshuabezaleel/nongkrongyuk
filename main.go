@@ -27,13 +27,24 @@ type SearchByLatLongResponse struct {
 			} `json:"R"`
 			ID       string `json:"id"`
 			Name     string `json:"name"`
+			URL      string `json:"url"`
 			Location struct {
 				City string `json:"city"`
 			} `json:"location"`
+			Cuisines   string `json:"cuisines"`
 			UserRating struct {
 			} `json:"user_rating"`
 		} `json:"restaurant"`
 	} `json:"restaurants"`
+}
+
+//CarouselColumn is rad as fuck
+type CarouselColumn struct {
+	imageURL string
+	title    string
+	text     string
+	labelURI string
+	linkURI  string
 }
 
 func main() {
@@ -119,8 +130,16 @@ func main() {
 					}
 
 					var lineMessage string
-					for _, SearchByLatLong := range SearchByLatLongs.Restaurants {
-						lineMessage = lineMessage + SearchByLatLong.Restaurant.Name + "\n"
+					var CarouselColumnFiller [5]CarouselColumn
+					for i, SearchByLatLong := range SearchByLatLongs.Restaurants {
+						if i > 5 {
+							break
+						}
+						CarouselColumnFiller[i].imageURL = "https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png"
+						CarouselColumnFiller[i].title = SearchByLatLong.Restaurant.Name
+						CarouselColumnFiller[i].text = SearchByLatLong.Restaurant.Cuisines
+						CarouselColumnFiller[i].labelURI = "Link"
+						CarouselColumnFiller[i].linkURI = "" + SearchByLatLong.Restaurant.URL
 					}
 					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(lineMessage)).Do(); err != nil {
 						log.Print(err)
