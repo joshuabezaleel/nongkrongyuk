@@ -97,10 +97,10 @@ func main() {
 							break
 						}
 						log.Printf("Restaurant %d: %s", i, restaurant.Name)
-						OneCarouselColumn := new(linebot.CarouselColumn)
-						OneCarouselColumn.ThumbnailImageURL = "https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png"
-						OneCarouselColumn.Title = restaurant.Name
-						OneCarouselColumn.Text = restaurant.Cuisines
+						URITemplate := linebot.NewURITemplateAction("Go to zomato!", restaurant.URL)
+						OneCarouselColumn := linebot.NewCarouselColumn(
+							"https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png",
+							restaurant.Name, restaurant.Cuisines, URITemplate)
 						// URITemplate.Label = "Go to Zomato!"
 						// URITemplate.URI = "" + restaurant.URL
 						// OneCarouselColumn.Actions = URITemplate
