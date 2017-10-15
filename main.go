@@ -1,42 +1,13 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/joshuabezaleel/nongkrongyuk/zomato"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
-
-//SearchCityIDResponse is rad as fuck
-type SearchCityIDResponse struct {
-	LocationSuggestions []struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"location_suggestions"`
-}
-
-//SearchByLatLongResponse is rad as fuck
-type SearchByLatLongResponse struct {
-	Restaurants []struct {
-		Restaurant struct {
-			R struct {
-				ResID int `json:"res_id"`
-			} `json:"R"`
-			ID       string `json:"id"`
-			Name     string `json:"name"`
-			URL      string `json:"url"`
-			Location struct {
-				City string `json:"city"`
-			} `json:"location"`
-			Cuisines   string `json:"cuisines"`
-			UserRating struct {
-			} `json:"user_rating"`
-		} `json:"restaurant"`
-	} `json:"restaurants"`
-}
 
 //CarouselColumn is rad as fuck
 type CarouselColumn struct {
@@ -55,6 +26,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	zomatoService := zomato.NewService("ZOMATO_API_KEY")
 
 	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		events, err := bot.ParseRequest(r)
@@ -110,39 +83,22 @@ func main() {
 				case *linebot.LocationMessage:
 					lat := message.Latitude
 					lon := message.Longitude
-					apiURL := "https://developers.zomato.com/api/v2.1/search?lat=" + fmt.Sprint(lat) + "&lon=" + fmt.Sprint(lon)
-					req, err := http.NewRequest("GET", apiURL, nil)
-					if err != nil {
-						log.Fatal(err)
-					}
-					req.Header.Set("Accept", "application/json")
-					req.Header.Set("User-Key", "d5a2d5a5ba29db0566b65335e27b5801")
-
-					resp, err := http.DefaultClient.Do(req)
-					if err != nil {
-						log.Fatal(err)
-					}
-					defer resp.Body.Close()
-
-					var SearchByLatLongs SearchByLatLongResponse
-					if err = json.NewDecoder(resp.Body).Decode(&SearchByLatLongs); err != nil {
-						log.Println(err)
-					}
+					restaurants, err := zomatoService.SearchRestaurantsByLatLong(lat, lon, 1, 5)
 
 					// var lineMessage string
 					var CarouselColumnFiller []*linebot.CarouselColumn
 					var OneCarouselColumn *linebot.CarouselColumn
 					// var URITemplate linebot.URITemplateAction
 					// linebot.NewURITemplateAction(label, uri)
-					for i, SearchByLatLong := range SearchByLatLongs.Restaurants {
+					for i, restaurant := range restaurants {
 						if i > 5 {
 							break
 						}
 						OneCarouselColumn.ThumbnailImageURL = "https://user-images.githubusercontent.com/7043511/31583356-630ca11c-b1c4-11e7-8109-16228f8a5c0b.png"
-						OneCarouselColumn.Title = SearchByLatLong.Restaurant.Name
-						OneCarouselColumn.Text = SearchByLatLong.Restaurant.Cuisines
+						OneCarouselColumn.Title = restaurant.Name
+						OneCarouselColumn.Text = restaurant.Cuisines
 						// URITemplate.Label = "Go to Zomato!"
-						// URITemplate.URI = "" + SearchByLatLong.Restaurant.URL
+						// URITemplate.URI = "" + restaurant.URL
 						// OneCarouselColumn.Actions = URITemplate
 						CarouselColumnFiller = append(CarouselColumnFiller, OneCarouselColumn)
 					}
