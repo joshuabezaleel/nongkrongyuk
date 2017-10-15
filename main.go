@@ -27,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	zomatoService := zomato.NewService("ZOMATO_API_KEY")
+	zomatoService := zomato.NewService(os.Getenv("ZOMATO_API_KEY"))
 
 	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		events, err := bot.ParseRequest(r)
