@@ -12,7 +12,7 @@ type Location struct {
 	Latitude  string `json:"latitude"`
 	Longitude string `json:"longitude"`
 	Zipcode   string `json:"zipcode"`
-	CountryID string `json:"country_id"`
+	CountryID int    `json:"country_id"`
 }
 
 //Restaurant is rad as fuck
@@ -26,7 +26,7 @@ type Restaurant struct {
 
 //City is rad as fuck
 type City struct {
-	ID          string `json:"id"`
+	ID          int    `json:"id"`
 	Name        string `json:"name"`
 	CountryID   string `json:"country_id"`
 	CountryName string `json:"country_name"`
@@ -54,7 +54,7 @@ type searchByLatLongResponseFormat struct {
 	} `json:"restaurants"`
 }
 
-func (r *SearchByLatLongResponse) JSONUnmarshal(data []byte) error {
+func (r *SearchByLatLongResponse) UnmarshalJSON(data []byte) error {
 	var formatted searchByLatLongResponseFormat
 	err := json.Unmarshal(data, &formatted)
 	if err != nil {
